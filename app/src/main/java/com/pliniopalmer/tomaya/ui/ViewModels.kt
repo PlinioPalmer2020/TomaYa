@@ -13,6 +13,7 @@ import com.pliniopalmer.tomaya.data.Tratamiento
 import com.pliniopalmer.tomaya.data.errorCantidad
 import com.pliniopalmer.tomaya.data.errorDias
 import com.pliniopalmer.tomaya.data.errorIntervalo
+import com.pliniopalmer.tomaya.data.normalizarUnidad
 import com.pliniopalmer.tomaya.data.parsearCantidad
 import com.pliniopalmer.tomaya.data.totalTomas
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,7 +66,7 @@ class FormularioViewModel @Inject constructor(
                     original = t
                     nombre = t.nombre
                     cantidad = formatoCantidad(t.cantidad)
-                    unidad = t.unidad
+                    unidad = normalizarUnidad(t.unidad)
                     intervaloHoras = t.intervaloHoras.toString()
                     dias = t.dias.toString()
                     inicioMillis = t.inicioMillis

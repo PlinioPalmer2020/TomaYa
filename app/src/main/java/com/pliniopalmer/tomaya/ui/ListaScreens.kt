@@ -154,4 +154,4 @@ private fun MensajeVacio(texto: String, padding: PaddingValues) {
 }
 
 private fun resumen(t: Tratamiento): String =
-    "${formatoCantidad(t.cantidad)} ${t.unidad} cada ${t.intervaloHoras} h por ${t.dias} días"
+    "${formatoDosis(t.cantidad, t.unidad)} cada ${t.intervaloHoras} h por ${t.dias} días"

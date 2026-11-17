@@ -15,7 +15,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,6 +28,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
@@ -31,7 +39,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.pliniopalmer.tomaya.data.MAX_LARGO_NOMBRE
-import com.pliniopalmer.tomaya.data.MAX_LARGO_UNIDAD
+import com.pliniopalmer.tomaya.data.GRUPOS_UNIDADES
+import com.pliniopalmer.tomaya.data.buscarUnidad
+import com.pliniopalmer.tomaya.data.unidadParaLista
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,13 +123,9 @@ fun FormularioScreen(
                     ),
                     modifier = Modifier.weight(1f),
                 )
-                OutlinedTextField(
-                    value = viewModel.unidad,
-                    onValueChange = { viewModel.unidad = it.take(MAX_LARGO_UNIDAD) },
-                    label = { Text("Unidad") },
-                    placeholder = { Text("cc, pastilla, gotas") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                SelectorUnidad(
+                    unidad = viewModel.unidad,
+                    alElegir = { viewModel.unidad = it },
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -178,6 +184,71 @@ fun FormularioScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Guardar")
+            }
+        }
+    }
+}
+
+/**
+ * Lista desplegable de unidades. Guarda la forma singular de la unidad elegida. Si el
+ * tratamiento trae una unidad escrita a mano que no está en la lista, se conserva y se
+ * ofrece como primera opción para no perderla al editar.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectorUnidad(
+    unidad: String,
+    alElegir: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var abierto by remember { mutableStateOf(false) }
+    val fueraDeLista = unidad.isNotBlank() && buscarUnidad(unidad) == null
+
+    ExposedDropdownMenuBox(
+        expanded = abierto,
+        onExpandedChange = { abierto = it },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = unidadParaLista(unidad),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Unidad") },
+            placeholder = { Text("Elegir") },
+            singleLine = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = abierto) },
+            // Reserva el mismo alto que el campo Cantidad, que tiene texto de apoyo.
+            supportingText = {},
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
+            expanded = abierto,
+            onDismissRequest = { abierto = false },
+        ) {
+            if (fueraDeLista) {
+                DropdownMenuItem(
+                    text = { Text(unidad) },
+                    onClick = { abierto = false },
+                )
+            }
+            GRUPOS_UNIDADES.forEach { grupo ->
+                Text(
+                    text = grupo.titulo,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+                )
+                grupo.unidades.forEach { opcion ->
+                    DropdownMenuItem(
+                        text = { Text(opcion.plural) },
+                        onClick = {
+                            alElegir(opcion.singular)
+                            abierto = false
+                        },
+                    )
+                }
             }
         }
     }

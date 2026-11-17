@@ -1,5 +1,6 @@
 package com.pliniopalmer.tomaya.ui
 
+import com.pliniopalmer.tomaya.data.unidadSegunCantidad
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -7,6 +8,10 @@ import java.util.Locale
 /** 5.0 → "5", 2.5 → "2.5". */
 fun formatoCantidad(cantidad: Double): String =
     if (cantidad % 1.0 == 0.0) cantidad.toLong().toString() else cantidad.toString()
+
+/** "2 pastillas", "1 pastilla", "5 ml". */
+fun formatoDosis(cantidad: Double, unidad: String): String =
+    "${formatoCantidad(cantidad)} ${unidadSegunCantidad(cantidad, unidad)}"
 
 private fun formatear(patron: String, millis: Long): String =
     SimpleDateFormat(patron, Locale.getDefault()).format(Date(millis))

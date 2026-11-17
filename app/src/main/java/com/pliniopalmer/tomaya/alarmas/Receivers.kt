@@ -11,7 +11,7 @@ import com.pliniopalmer.tomaya.MainActivity
 import com.pliniopalmer.tomaya.R
 import com.pliniopalmer.tomaya.TomaYaApp
 import com.pliniopalmer.tomaya.data.TomaYaRepository
-import com.pliniopalmer.tomaya.ui.formatoCantidad
+import com.pliniopalmer.tomaya.ui.formatoDosis
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +62,7 @@ class AlarmaReceiver : BroadcastReceiver() {
             val notificacion = NotificationCompat.Builder(context, TomaYaApp.CANAL_TOMAS)
                 .setSmallIcon(R.drawable.ic_notificacion)
                 .setContentTitle("¡TomaYa! ${info.nombre}")
-                .setContentText("${formatoCantidad(info.cantidad)} ${info.unidad}")
+                .setContentText(formatoDosis(info.cantidad, info.unidad))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(abrirApp)
